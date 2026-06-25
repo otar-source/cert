@@ -1,0 +1,63 @@
+if (process.env.NODE_ENV !== 'production') {
+    require('dotenv').config();
+}
+const { pool, initializeDb } = require('./config/db');
+
+async function testConnection() {
+    console.log('Testing database connection...');
+    
+    try {
+        const connection = await pool.getConnection();
+        console.log('✓ Successfully connected to MySQL server');
+        
+        const [rows] = await connection.execute('SELECT NOW() AS server_time');
+        console.log('✓ Query executed successfully');
+        console.log(' Current database time:', rows[0].server_time);
+        
+        await initializeDb();
+        console.log('✓ Database initialization completed');
+        
+        const [tables] = await connection.execute(
+            "SELECT COUNT(*) AS count FROM information_schema.tables WHERE table_schema = ? AND table_name = 'users'",
+            ['user']
+        );
+        
+        if (tables[0].count > 0) {
+            console.log('✓ Users table exists');
+        } else {
+            console.log('✗ Users table does not exist');
+        }
+        
+        connection.release();
+        console.log('✓ All tests passed! Database connection is working correctly.');
+        
+        await pool.end();
+        process.exit(0);
+    } catch (error) {
+        console.error('✗ Database connection failed:');
+        console.error(' Error:', error.message);
+        console.error(' Code:', error.code);
+        
+        if (error.code === 'ER_ACCESS_DENIED_ERROR') {
+            console.log('\nTroubleshooting:');
+            console.log(' - Check your DB_USER and DB_PASSWORD in .env file');
+            console.log(' - Verify the MySQL user has proper permissions');
+        } else if (error.code === 'ER_BAD_DB_ERROR') {
+            console.log('\nTroubleshooting:');
+            console.log(' - Check your DB_NAME in .env file');
+            console.log(' - The database might need to be created first');
+        } else if (error.code === 'ECONNREFUSED') {
+            console.log('\nTroubleshooting:');
+            console.log(' - Check if MySQL server is running');
+            console.log(' - Verify DB_HOST and port in .env file');
+        }
+        
+        process.exit(1);
+    }
+}
+
+if (require.main === module) {
+    testConnection();
+}
+
+module.exports = testConnection;

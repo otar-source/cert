@@ -8,7 +8,7 @@ const app = express();
 const PORT = process.env.PORT || 3000;
 
 // MongoDB connection using environment variable (options removed for Mongoose 6+)
-const mongoURI = process.env.MONGODB_URI || 'mongodb://localhost:27017/loler_certs';
+const mongoURI = process.env.MONGODB_URI || 'mongodb+srv://innovativemind0001_db_user:dsN2lTkVcxz9Ga1X@cluster0.ch7g0bc.mongodb.net/?appName=Cluster0';
 mongoose.connect(mongoURI)
   .then(() => {
     console.log('MongoDB connected');
