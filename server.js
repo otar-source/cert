@@ -28,13 +28,12 @@ app.get('/verify/:uuid', async (req, res) => {
   }
 });
 
-// Move DB connection and server start here
-const mongoURI = process.env.MONGODB_URI || 'mongodb+srv://innovativemind0001_db_user:dsN2lTkVcxz9Ga1X@cluster0.ch7g0bc.mongodb.net/?appName=Cluster0'; // remove the hardcoded fallback
+const mongoURI = process.env.MONGODB_URI || 'mongodb+srv://innovativemind0001_db_user:dsN2lTkVcxz9Ga1X@cluster0.ch7g0bc.mongodb.net/?appName=Cluster0';
 
 async function startServer() {
   try {
     await mongoose.connect(mongoURI, {
-      serverSelectionTimeoutMS: 30000, // give it 30s to connect
+      serverSelectionTimeoutMS: 20000, // give it 30s to connect
     });
     console.log('✅ MongoDB connected');
     
@@ -43,7 +42,8 @@ async function startServer() {
     });
   } catch (err) {
     console.error('❌ MongoDB connection failed:', err.message);
-    process.exit(1); // don't start the server if DB is down
+    process.exit(1);
+    
   }
 }
 
